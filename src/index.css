@@ -3,56 +3,52 @@
 @tailwind utilities;
 
 :root {
-  --primary: #FFD700;
-  --secondary: #4A90E2;
-  --background: #1A1B26;
-  --text: #E6E8E6;
+  color-scheme: dark;
 }
 
 @layer base {
   html {
-    @apply bg-background;
+    @apply bg-background text-text;
+    min-height: 100vh;
   }
   
   body {
-    @apply bg-background text-text m-0 p-0 min-h-screen overflow-x-hidden font-sans;
+    @apply bg-background text-text;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
   }
   
   #root {
-    @apply min-h-screen bg-background;
+    min-height: 100vh;
   }
 }
 
-.flame-effect {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(to top, var(--primary), transparent);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-}
+@layer components {
+  .widget {
+    @apply bg-background-opacity backdrop-blur-md rounded-lg border border-primary-opacity overflow-hidden shadow-xl;
+  }
 
-.button-hover:hover .flame-effect {
-  opacity: 0.2;
-  animation: flameAnimation 1s infinite;
-}
+  .widget-header {
+    @apply flex items-center justify-between p-3 bg-primary-opacity border-b border-primary-opacity;
+  }
 
-@keyframes flameAnimation {
-  0% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
-  100% { transform: translateY(0); }
-}
+  .widget-content {
+    @apply p-4 overflow-auto;
+  }
 
-.notification-scroll {
-  animation: scroll 20s linear infinite;
-}
+  .button-primary {
+    @apply bg-primary text-background hover:bg-primary-opacity transition-colors;
+  }
 
-@keyframes scroll {
-  0% { transform: translateX(100%); }
-  100% { transform: translateX(-100%); }
+  .button-secondary {
+    @apply border border-primary-opacity text-primary hover:bg-primary-opacity transition-colors;
+  }
+
+  .input-primary {
+    @apply bg-background-opacity border border-primary-opacity rounded-lg 
+           text-text placeholder:text-text/50 focus:outline-none focus:border-primary;
+  }
 }
 
 /* Custom scrollbar */
@@ -62,21 +58,16 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(26, 27, 38, 0.5);
+  background: rgba(var(--background-rgb), 0.5);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 215, 0, 0.3);
+  background: rgba(var(--primary-rgb), 0.3);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 215, 0, 0.5);
-}
-
-/* Ensure widgets have proper background */
-.widget {
-  @apply bg-background/95 backdrop-blur-md;
+  background: rgba(var(--primary-rgb), 0.5);
 }
 
 /* Mobile optimizations */

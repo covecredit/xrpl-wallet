@@ -96,7 +96,7 @@ const ChatWidget: React.FC = () => {
                   {msg.sender === 'user' && (
                     <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
                       <img
-                        src="https://api.dicebear.com/7.x/bottts/svg?seed=cove"
+                        src="https://api.dicebear.com/7.x/bottts/svg?seed=cove&backgroundColor=transparent&scale=80"
                         alt="User"
                         className="w-5 h-5"
                       />

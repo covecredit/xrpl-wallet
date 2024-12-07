@@ -6,5 +6,26 @@ export default defineConfig({
   server: {
     port: 5173,
     host: true
+  },
+  resolve: {
+    alias: {
+      buffer: 'buffer',
+      process: 'process/browser',
+      util: 'util',
+      stream: 'stream-browserify',
+      events: 'events'
+    }
+  },
+  define: {
+    'process.env': {},
+    global: 'globalThis'
+  },
+  optimizeDeps: {
+    esbuildOptions: {
+      target: 'esnext',
+      define: {
+        global: 'globalThis'
+      }
+    }
   }
 });

@@ -165,11 +165,11 @@ const Widget: React.FC<WidgetProps> = ({
         height: widget.height || defaultSize?.height || 400,
         zIndex: widget.zIndex || 1
       }}
-      className="widget bg-background/95 backdrop-blur-md rounded-lg border border-primary/30 overflow-hidden shadow-xl mb-4"
+      className="widget bg-background-opacity backdrop-blur-md rounded-lg border border-primary-opacity overflow-hidden shadow-xl"
       onClick={handleClick}
     >
       <div
-        className="flex items-center justify-between p-3 bg-primary/10 border-b border-primary/30 cursor-move"
+        className="flex items-center justify-between p-3 bg-primary-opacity border-b border-primary-opacity cursor-move"
         onMouseDown={handleDragStart}
       >
         <div className="flex items-center space-x-2">
@@ -179,19 +179,19 @@ const Widget: React.FC<WidgetProps> = ({
         <div className="flex items-center space-x-1">
           <button
             onClick={handleMinimize}
-            className="p-1 hover:bg-primary/20 rounded transition-colors"
+            className="p-1 hover:bg-primary-opacity rounded transition-colors"
           >
             <Minus className="w-4 h-4 text-text" />
           </button>
           <button
             onClick={handleMaximize}
-            className="p-1 hover:bg-primary/20 rounded transition-colors"
+            className="p-1 hover:bg-primary-opacity rounded transition-colors"
           >
             <Square className="w-4 h-4 text-text" />
           </button>
           <button
             onClick={handleClose}
-            className="p-1 hover:bg-primary/20 rounded transition-colors"
+            className="p-1 hover:bg-primary-opacity rounded transition-colors"
           >
             <X className="w-4 h-4 text-text" />
           </button>

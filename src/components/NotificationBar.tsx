@@ -1,78 +1,110 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Notification } from '../types';
+import { exchangeManager } from '../services/exchanges';
+import { xrplService } from '../services/xrpl';
+import { useWalletStore } from '../store/walletStore';
 
-interface NotificationBarProps {
-  notifications: Notification[];
+interface NotificationData {
+  id: string;
+  message: string;
+  type: 'price' | 'system' | 'transaction';
 }
 
-const NotificationBar: React.FC<NotificationBarProps> = ({ notifications }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
+const NotificationBar: React.FC = () => {
+  const [notifications, setNotifications] = useState<NotificationData[]>([]);
+  const { isConnected } = useWalletStore();
 
   useEffect(() => {
-    if (!containerRef.current || !contentRef.current) return;
+    const updateInterval = setInterval(async () => {
+      const newNotifications: NotificationData[] = [];
 
-    const container = containerRef.current;
-    const content = contentRef.current;
-    let animationId: number;
-    let time = 0;
+      // Add exchange prices
+      const exchanges = ['Bitfinex', 'Bitstamp', 'Kraken'] as const;
+      exchanges.forEach(exchange => {
+        const price = exchangeManager.getLastPrice(exchange);
+        if (price?.lastPrice) {
+          newNotifications.push({
+            id: `price-${exchange}`,
+            message: `${exchange}: XRP/USD $${price.lastPrice.toFixed(4)}`,
+            type: 'price'
+          });
+        }
+      });
 
-    const animate = () => {
-      time += 0.02;
-      const basePosition = -time * 50;
-      const sineOffset = Math.sin(time * 2) * 10;
-      
-      content.style.transform = `translateX(${basePosition}px) translateY(${sineOffset}px)`;
-      
-      // Reset position when content is fully scrolled
-      if (-basePosition >= content.offsetWidth / 2) {
-        time = 0;
+      // Add XRPL network info if connected
+      if (isConnected) {
+        const client = xrplService.getClient();
+        if (client?.isConnected()) {
+          try {
+            const [ledgerResponse, serverInfo] = await Promise.all([
+              client.request({
+                command: 'ledger',
+                ledger_index: 'validated'
+              }),
+              client.request({
+                command: 'server_info'
+              })
+            ]);
+            
+            if (ledgerResponse.result.ledger) {
+              newNotifications.push({
+                id: 'ledger',
+                message: `Latest Validated Ledger: #${ledgerResponse.result.ledger_index}`,
+                type: 'system'
+              });
+
+              const network = xrplService.getCurrentNetwork();
+              newNotifications.push({
+                id: 'network',
+                message: `Connected to ${network?.name} | Server Version: ${serverInfo.result.info.build_version}`,
+                type: 'system'
+              });
+            }
+          } catch (error) {
+            console.error('Failed to fetch network info:', error);
+          }
+        }
       }
 
-      animationId = requestAnimationFrame(animate);
-    };
+      setNotifications(newNotifications);
+    }, 1000);
 
-    animationId = requestAnimationFrame(animate);
-
-    return () => {
-      cancelAnimationFrame(animationId);
-    };
-  }, [notifications]);
-
-  // Duplicate notifications to create seamless loop
-  const allNotifications = [...notifications, ...notifications];
+    return () => clearInterval(updateInterval);
+  }, [isConnected]);
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="h-12 bg-background/80 backdrop-blur border-t border-primary/20"
+      className="fixed bottom-0 left-0 right-0 h-12 bg-background/80 backdrop-blur border-t border-primary/20"
     >
       <div 
-        ref={containerRef}
         className="h-full overflow-hidden"
         style={{ maskImage: 'linear-gradient(90deg, transparent, black 10%, black 90%, transparent)' }}
       >
-        <div 
-          ref={contentRef}
-          className="h-full flex items-center whitespace-nowrap"
-          style={{ width: 'fit-content' }}
+        <motion.div 
+          className="h-full flex items-center space-x-16 whitespace-nowrap"
+          animate={{
+            x: [0, -2000],
+            transition: {
+              duration: 30,
+              repeat: Infinity,
+              ease: "linear"
+            }
+          }}
         >
-          {allNotifications.map((notification, index) => (
+          {[...notifications, ...notifications].map((notification, index) => (
             <span
               key={`${notification.id}-${index}`}
-              className={`
-                inline-block mx-8 font-medium
-                ${notification.type === 'price' ? 'text-primary' : ''}
-                ${notification.type === 'system' ? 'text-secondary' : ''}
-                ${notification.type === 'transaction' ? 'text-green-400' : ''}
-              `}
+              className={`inline-flex items-center space-x-2 ${
+                notification.type === 'price' ? 'text-primary' : 'text-text'
+              }`}
             >
-              • {notification.message}
+              <span className="text-primary">•</span>
+              <span>{notification.message}</span>
             </span>
           ))}
-        </div>
+        </motion.div>
       </div>
     </motion.div>
   );

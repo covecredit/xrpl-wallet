@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import MainLayout from './components/Layout/MainLayout';
 import WalletPanel from './components/Wallet/WalletPanel';
 import GraphPanel from './components/Graph/GraphPanel';
@@ -10,9 +10,9 @@ import { useWidgetStore } from './store/widgetStore';
 const App: React.FC = () => {
   const { widgets, updateWidget } = useWidgetStore();
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!widgets.length) {
-      // Wallet widget
+      // Initialize default widget positions
       updateWidget({
         id: 'wallet',
         isVisible: true,
@@ -23,7 +23,6 @@ const App: React.FC = () => {
         zIndex: 1
       });
 
-      // Chain Explorer
       updateWidget({
         id: 'graph',
         isVisible: true,
@@ -34,7 +33,6 @@ const App: React.FC = () => {
         zIndex: 1
       });
 
-      // Price chart
       updateWidget({
         id: 'price',
         isVisible: true,
@@ -45,7 +43,6 @@ const App: React.FC = () => {
         zIndex: 1
       });
 
-      // Market panel
       updateWidget({
         id: 'market',
         isVisible: false,
@@ -56,7 +53,6 @@ const App: React.FC = () => {
         zIndex: 1
       });
 
-      // Chat widget
       updateWidget({
         id: 'chat',
         isVisible: false,

@@ -2,13 +2,22 @@ import React, { useState } from 'react';
 import { Settings, Palette } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useThemeStore } from '../../store/themeStore';
+import { ThemeName, themes } from '../../types/theme';
 
 const SettingsDropdown: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { theme, setTheme } = useThemeStore();
+  const { currentTheme, setTheme } = useThemeStore();
 
-  const handleThemeChange = () => {
-    setTheme(theme === 'default' ? 'dark' : 'default');
+  const themeNames: Record<ThemeName, string> = {
+    gold: 'Gold',
+    red: 'Ruby',
+    green: 'Emerald',
+    lightBlue: 'Sapphire',
+    darkBlue: 'Ocean'
+  };
+
+  const handleThemeChange = (theme: ThemeName) => {
+    setTheme(theme);
     setIsOpen(false);
   };
 
@@ -33,13 +42,21 @@ const SettingsDropdown: React.FC = () => {
             className="absolute right-0 mt-2 w-48 rounded-lg bg-background border border-primary/30 shadow-lg overflow-hidden z-[60]"
           >
             <div className="py-1">
-              <button
-                className="w-full px-4 py-2 text-left text-text hover:bg-primary/20 flex items-center space-x-2"
-                onClick={handleThemeChange}
-              >
-                <Palette className="w-4 h-4" />
-                <span>Theme ({theme})</span>
-              </button>
+              <div className="px-4 py-2 text-sm text-text/70">Theme</div>
+              {(Object.keys(themes) as ThemeName[]).map((theme) => (
+                <button
+                  key={theme}
+                  className={`w-full px-4 py-2 text-left text-text hover:bg-primary/20 flex items-center space-x-2
+                    ${currentTheme === theme ? 'bg-primary/10' : ''}`}
+                  onClick={() => handleThemeChange(theme)}
+                >
+                  <div 
+                    className="w-4 h-4 rounded-full"
+                    style={{ backgroundColor: themes[theme].primary }}
+                  />
+                  <span>{themeNames[theme]}</span>
+                </button>
+              ))}
             </div>
           </motion.div>
         )}
