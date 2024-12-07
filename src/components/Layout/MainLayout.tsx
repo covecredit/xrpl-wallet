@@ -1,21 +1,15 @@
 import React, { useState } from 'react';
-import StarfieldBackground from '../StarfieldBackground';
 import NotificationBar from '../NotificationBar';
 import { Notification } from '../../types';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useMediaQuery } from '../../hooks/useMediaQuery';
+import MenuButton from '../AppBar/MenuButton';
+import AppBar from '../AppBar/AppBar';
+import AccountHeader from '../Header/AccountHeader';
+import Logo from '../Logo/Logo';
 
 interface MainLayoutProps {
   children: React.ReactNode;
-}
-
-interface FireParticle {
-  id: number;
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  size: number;
-  opacity: number;
 }
 
 const notifications: Notification[] = [
@@ -25,74 +19,43 @@ const notifications: Notification[] = [
 ];
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
-  const [fireParticles, setFireParticles] = useState<FireParticle[]>([]);
-
-  const createFireParticles = (x: number, y: number) => {
-    const particles: FireParticle[] = [];
-    const particleCount = 8; // Reduced from 12
-    
-    for (let i = 0; i < particleCount; i++) {
-      const angle = (Math.PI * 2 * i) / particleCount;
-      const speed = 1.5 + Math.random() * 1.5; // Reduced speed
-      particles.push({
-        id: Date.now() + i,
-        x,
-        y,
-        vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed - 1.5,
-        size: 6 + Math.random() * 6, // Reduced size from 10 to 6
-        opacity: 0.6 + Math.random() * 0.2 // Slightly reduced opacity
-      });
-    }
-
-    setFireParticles(prev => [...prev, ...particles]);
-    setTimeout(() => {
-      setFireParticles(prev => prev.filter(p => !particles.includes(p)));
-    }, 800); // Reduced duration from 1000ms to 800ms
-  };
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    createFireParticles(e.clientX, e.clientY);
-  };
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   return (
-    <div 
-      className="min-h-screen bg-background"
-      onMouseDown={handleMouseDown}
-    >
-      <StarfieldBackground />
-      
+    <div className={`min-h-screen bg-background ${isMobile ? 'pb-16' : ''}`}>
+      <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between p-4">
+        <div className="flex items-center space-x-4">
+          <MenuButton isOpen={isMenuOpen} onClick={() => setIsMenuOpen(!isMenuOpen)} />
+          <Logo />
+        </div>
+        <AccountHeader />
+      </div>
+
       <AnimatePresence>
-        {fireParticles.map(particle => (
+        {isMenuOpen && (
           <motion.div
-            key={particle.id}
-            initial={{ 
-              x: particle.x,
-              y: particle.y,
-              scale: 1,
-              opacity: particle.opacity
-            }}
-            animate={{ 
-              x: particle.x + particle.vx * 40, // Reduced movement range
-              y: particle.y + particle.vy * 40,
-              scale: 0,
-              opacity: 0
-            }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.8, ease: 'easeOut' }}
-            className="absolute pointer-events-none z-50"
-            style={{
-              width: particle.size,
-              height: particle.size * 1.5,
-              background: 'radial-gradient(circle at 50% 0%, #FFD700, #FF4500, transparent)',
-              borderRadius: '50% 50% 20% 20%'
-            }}
-          />
-        ))}
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.2 }}
+            className="fixed top-16 left-0 right-0 z-40 bg-background/95 backdrop-blur-md border-b border-primary/30 shadow-lg"
+          >
+            <AppBar isMenuOpen={isMenuOpen} />
+          </motion.div>
+        )}
       </AnimatePresence>
 
-      <main className="relative z-10 min-h-[calc(100vh-48px)]">
-        {children}
+      <main className={`
+        relative z-10 min-h-[calc(100vh-48px)]
+        ${isMobile ? 'flex flex-col space-y-4 px-4 pt-20' : ''}
+      `}>
+        {React.Children.map(children, child => {
+          if (React.isValidElement(child) && child.type === AppBar) {
+            return null;
+          }
+          return child;
+        })}
       </main>
       
       <footer className="fixed bottom-0 left-0 right-0 z-20">

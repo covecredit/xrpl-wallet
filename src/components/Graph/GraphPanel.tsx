@@ -1,47 +1,57 @@
-import React, { useCallback, useRef, useEffect } from 'react';
+import React, { useCallback, useRef, useEffect, useState } from 'react';
 import { Activity, Search, ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
 import Widget from '../Widget/Widget';
 import ForceGraph2D from 'react-force-graph-2d';
 import { mockGraphData } from '../../utils/mockData';
+import { useMediaQuery } from '../../hooks/useMediaQuery';
+
+const NODE_COLORS = {
+  wallet: '#FFD700',    // Gold
+  transaction: '#4A90E2', // Blue
+  ledger: '#32CD32'     // Green
+};
 
 const GraphPanel: React.FC = () => {
-  const [searchQuery, setSearchQuery] = React.useState('');
-  const fgRef = useRef();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [graphData, setGraphData] = useState(mockGraphData);
+  const fgRef = useRef<any>();
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   const handleZoomIn = useCallback(() => {
     if (fgRef.current) {
-      const fg = fgRef.current;
-      fg.zoom(fg.zoom() * 1.5);
+      fgRef.current.zoom(fgRef.current.zoom() * 1.5);
     }
   }, []);
 
   const handleZoomOut = useCallback(() => {
     if (fgRef.current) {
-      const fg = fgRef.current;
-      fg.zoom(fg.zoom() / 1.5);
+      fgRef.current.zoom(fgRef.current.zoom() / 1.5);
     }
   }, []);
 
   const handleRefresh = useCallback(() => {
-    if (fgRef.current) {
-      const fg = fgRef.current;
-      
-      // Randomize node positions
-      const nodes = mockGraphData.nodes.map(node => ({
+    // Create a deep copy of the data to trigger a complete re-render
+    const newData = {
+      nodes: mockGraphData.nodes.map(node => ({
         ...node,
-        x: (Math.random() - 0.5) * 1000,
-        y: (Math.random() - 0.5) * 1000
-      }));
+        x: undefined,
+        y: undefined,
+        vx: undefined,
+        vy: undefined
+      })),
+      links: mockGraphData.links.map(link => ({ ...link }))
+    };
 
-      // Update graph data
-      fg.graphData({
-        nodes,
-        links: mockGraphData.links
-      });
+    setGraphData(newData);
 
-      // Reheat simulation
-      fg.d3ReheatSimulation();
+    if (fgRef.current) {
+      fgRef.current.d3ReheatSimulation();
     }
+  }, []);
+
+  useEffect(() => {
+    // Initial setup
+    handleRefresh();
   }, []);
 
   return (
@@ -94,15 +104,15 @@ const GraphPanel: React.FC = () => {
             <div className="text-sm font-medium text-primary mb-2">Legend</div>
             <div className="space-y-2">
               <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 rounded-full bg-[#FFD700]" />
+                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: NODE_COLORS.wallet }} />
                 <span className="text-sm text-text">Wallet</span>
               </div>
               <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 rounded-full bg-[#4A90E2]" />
+                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: NODE_COLORS.transaction }} />
                 <span className="text-sm text-text">Transaction</span>
               </div>
               <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 rounded-full bg-[#32CD32]" />
+                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: NODE_COLORS.ledger }} />
                 <span className="text-sm text-text">Ledger</span>
               </div>
             </div>
@@ -111,19 +121,14 @@ const GraphPanel: React.FC = () => {
           <div className="h-[450px] border border-primary/20 rounded-lg overflow-hidden">
             <ForceGraph2D
               ref={fgRef}
-              graphData={mockGraphData}
+              graphData={graphData}
               nodeLabel="label"
-              nodeColor={(node) => {
-                switch (node.type) {
-                  case 'wallet': return '#FFD700';
-                  case 'transaction': return '#4A90E2';
-                  case 'ledger': return '#32CD32';
-                  default: return '#E6E8E6';
-                }
-              }}
-              nodeRelSize={8}
+              nodeColor={(node: any) => NODE_COLORS[node.type as keyof typeof NODE_COLORS]}
+              nodeRelSize={6}
               linkColor={() => 'rgba(255, 215, 0, 0.2)'}
               backgroundColor="transparent"
+              width={isMobile ? window.innerWidth - 40 : undefined}
+              height={450}
               linkDirectionalParticles={2}
               linkDirectionalParticleSpeed={0.005}
               d3AlphaDecay={0.02}
@@ -132,22 +137,22 @@ const GraphPanel: React.FC = () => {
               onNodeClick={(node) => {
                 console.log('Clicked node:', node);
               }}
-              nodeCanvasObject={(node, ctx, globalScale) => {
+              nodeCanvasObject={(node: any, ctx, globalScale) => {
                 const label = node.label;
                 const fontSize = 12/globalScale;
                 ctx.font = `${fontSize}px Sans-Serif`;
-                const textWidth = ctx.measureText(label).width;
-                const bckgDimensions = [textWidth, fontSize].map(n => n + fontSize * 0.2);
-
-                ctx.fillStyle = node.color;
+                
+                // Draw node
+                ctx.fillStyle = NODE_COLORS[node.type as keyof typeof NODE_COLORS];
                 ctx.beginPath();
                 ctx.arc(node.x, node.y, 5, 0, 2 * Math.PI);
                 ctx.fill();
 
+                // Draw label
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 ctx.fillStyle = '#E6E8E6';
-                ctx.fillText(label.slice(0, 20) + '...', node.x, node.y + 10);
+                ctx.fillText(label.slice(0, 20) + (label.length > 20 ? '...' : ''), node.x, node.y + 10);
               }}
             />
           </div>

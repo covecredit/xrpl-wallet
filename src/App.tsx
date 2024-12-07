@@ -4,8 +4,6 @@ import WalletPanel from './components/Wallet/WalletPanel';
 import GraphPanel from './components/Graph/GraphPanel';
 import PricePanel from './components/Price/PricePanel';
 import MarketPanel from './components/Marketplace/MarketPanel';
-import AccountHeader from './components/Header/AccountHeader';
-import AppBar from './components/AppBar/AppBar';
 import { useWidgetStore } from './store/widgetStore';
 
 const App: React.FC = () => {
@@ -30,8 +28,8 @@ const App: React.FC = () => {
         isVisible: true,
         x: 360,
         y: 80,
-        width: 1000,  // Increased from 800
-        height: 600,  // Increased from 500
+        width: 1000,
+        height: 600,
         zIndex: 1
       });
 
@@ -41,8 +39,8 @@ const App: React.FC = () => {
         isVisible: true,
         x: 360,
         y: window.innerHeight - 380,
-        width: 1000,  // Increased from 800
-        height: 350,  // Increased from 300
+        width: 1000,
+        height: 350,
         zIndex: 1
       });
 
@@ -52,8 +50,8 @@ const App: React.FC = () => {
         isVisible: false,
         x: 360,
         y: 80,
-        width: 1000,  // Increased from 800
-        height: 600,  // Increased from 500
+        width: 1000,
+        height: 600,
         zIndex: 1
       });
     }
@@ -61,8 +59,6 @@ const App: React.FC = () => {
 
   return (
     <MainLayout>
-      <AccountHeader />
-      <AppBar />
       {widgets.find(w => w.id === 'wallet')?.isVisible && <WalletPanel />}
       {widgets.find(w => w.id === 'graph')?.isVisible && <GraphPanel />}
       {widgets.find(w => w.id === 'price')?.isVisible && <PricePanel />}
