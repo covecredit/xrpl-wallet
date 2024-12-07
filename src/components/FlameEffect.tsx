@@ -7,54 +7,42 @@ interface FlameEffectProps {
 }
 
 const FlameEffect: React.FC<FlameEffectProps> = ({ x, y }) => {
-  const colors = [
-    '#FF0000', // Red
-    '#FF4500', // Red-Orange
-    '#FFA500', // Orange
-    '#FFD700', // Gold
-    '#4169E1', // Royal Blue
-    '#C0C0C0', // Silver
-  ];
-
-  const randomColor = () => colors[Math.floor(Math.random() * colors.length)];
-
-  const particles = Array.from({ length: 20 }, () => ({
-    x,
-    y,
-    vx: (Math.random() - 0.5) * 4,
-    vy: -Math.random() * 4 - 2,
-    color: randomColor(),
-    targetColor: randomColor()
+  const particles = Array.from({ length: 12 }, (_, i) => ({
+    id: i,
+    angle: (Math.PI * 2 * i) / 12,
+    speed: 1 + Math.random(),
+    scale: 0.3 + Math.random() * 0.2,
   }));
 
   return (
-    <motion.div
-      initial={{ opacity: 1 }}
-      animate={{ opacity: 0 }}
-      transition={{ duration: 0.5 }}
-      className="fixed pointer-events-none z-50"
-      style={{ left: 0, top: 0 }}
-    >
-      {particles.map((particle, i) => (
+    <div className="fixed pointer-events-none z-50" style={{ left: x - 5, top: y - 5 }}>
+      {particles.map((particle) => (
         <motion.div
-          key={i}
-          initial={{ 
-            x: particle.x, 
-            y: particle.y,
-            scale: 1,
-            backgroundColor: particle.color
+          key={particle.id}
+          initial={{
+            scale: particle.scale,
+            opacity: 0.8,
           }}
-          animate={{ 
-            x: particle.x + particle.vx * 20,
-            y: particle.y + particle.vy * 20,
+          animate={{
+            x: Math.cos(particle.angle) * 20 * particle.speed,
+            y: Math.sin(particle.angle) * 20 * particle.speed - 20,
             scale: 0,
-            backgroundColor: particle.targetColor
+            opacity: 0,
           }}
-          transition={{ duration: 0.5 }}
-          className="absolute w-2 h-2 rounded-full"
+          transition={{
+            duration: 0.4,
+            ease: "easeOut"
+          }}
+          style={{
+            position: 'absolute',
+            width: 10,
+            height: 10,
+            background: `radial-gradient(circle at 50% 0%, #FFD700, #FFA500, transparent)`,
+            clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)',
+          }}
         />
       ))}
-    </motion.div>
+    </div>
   );
 };
 

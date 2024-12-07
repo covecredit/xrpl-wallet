@@ -165,7 +165,7 @@ const Widget: React.FC<WidgetProps> = ({
         height: widget.height || defaultSize?.height || 400,
         zIndex: widget.zIndex || 1
       }}
-      className="bg-background/95 backdrop-blur-md rounded-lg border border-primary/30 overflow-hidden shadow-xl mb-4"
+      className="widget bg-background/95 backdrop-blur-md rounded-lg border border-primary/30 overflow-hidden shadow-xl mb-4"
       onClick={handleClick}
     >
       <div

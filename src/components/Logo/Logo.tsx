@@ -15,18 +15,19 @@ const Logo: React.FC<LogoProps> = ({ className = '' }) => {
       transition={{ duration: 0.3 }}
     >
       <Anchor className="w-6 h-6 text-primary" />
-      <div className="flex items-center text-xl font-bold text-primary">
-        <span>C</span>
+      <div className="flex items-center text-xl font-bold">
+        <span className="text-text">C</span>
         <span className="relative mx-0.5">
-          O
-          <motion.div
-            className="absolute top-1/2 left-0 w-full h-0.5 bg-primary transform -rotate-45"
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ delay: 0.2, duration: 0.3 }}
+          <span className="text-text">O</span>
+          <div
+            className="absolute top-1/2 left-1/2 w-[120%] h-[2px] bg-primary"
+            style={{
+              transform: 'translate(-50%, -50%) rotate(-45deg)',
+              transformOrigin: 'center'
+            }}
           />
         </span>
-        <span>VE</span>
+        <span className="text-text">VE</span>
       </div>
     </motion.div>
   );
