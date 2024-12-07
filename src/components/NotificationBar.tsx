@@ -16,17 +16,20 @@ const NotificationBar: React.FC<NotificationBarProps> = ({ notifications }) => {
     const container = containerRef.current;
     const content = contentRef.current;
     let animationId: number;
-    let position = 0;
+    let time = 0;
 
     const animate = () => {
-      position -= 1;
+      time += 0.02;
+      const basePosition = -time * 50;
+      const sineOffset = Math.sin(time * 2) * 10;
+      
+      content.style.transform = `translateX(${basePosition}px) translateY(${sineOffset}px)`;
       
       // Reset position when content is fully scrolled
-      if (-position >= content.offsetWidth / 2) {
-        position = 0;
+      if (-basePosition >= content.offsetWidth / 2) {
+        time = 0;
       }
 
-      content.style.transform = `translateX(${position}px)`;
       animationId = requestAnimationFrame(animate);
     };
 

@@ -19,11 +19,9 @@ const AccountHeader: React.FC = () => {
       <div className="flex items-center space-x-4">
         {isConnected ? (
           <>
-            <img
-              src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23FFD700'%3E%3Cpath d='M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5'/%3E%3C/svg%3E"
-              alt="Profile"
-              className="w-10 h-10 rounded-full border-2 border-primary bg-background p-1"
-            />
+            <div className="w-10 h-10 rounded-full border-2 border-primary bg-background flex items-center justify-center">
+              <span className="text-2xl">🎉</span>
+            </div>
             <button 
               onClick={handleDisconnect}
               className="flex items-center space-x-2 bg-primary text-background px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors duration-200"

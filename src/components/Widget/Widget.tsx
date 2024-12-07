@@ -1,5 +1,4 @@
 import React, { useState, useRef } from 'react';
-import { motion } from 'framer-motion';
 import { LucideIcon, Minus, Square, X } from 'lucide-react';
 import { useWidgetStore } from '../../store/widgetStore';
 
@@ -12,6 +11,9 @@ interface WidgetProps {
   defaultSize?: { width: number; height: number };
   onClose?: () => void;
 }
+
+const HEADER_HEIGHT = 80;
+const FOOTER_HEIGHT = 48;
 
 const Widget: React.FC<WidgetProps> = ({
   id,
@@ -27,20 +29,14 @@ const Widget: React.FC<WidgetProps> = ({
   const [isMaximized, setIsMaximized] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
-  
-  const dragRef = useRef<{ startX: number; startY: number; offsetX: number; offsetY: number }>({
-    startX: 0,
-    startY: 0,
-    offsetX: 0,
-    offsetY: 0
-  });
+  const dragRef = useRef({ startX: 0, startY: 0, offsetX: 0, offsetY: 0 });
+  const resizeRef = useRef({ startX: 0, startY: 0, startWidth: 0, startHeight: 0 });
 
-  const resizeRef = useRef<{ startX: number; startY: number; startWidth: number; startHeight: number }>({
-    startX: 0,
-    startY: 0,
-    startWidth: 0,
-    startHeight: 0
-  });
+  const handleClick = (e: React.MouseEvent) => {
+    if (!isDragging && !isResizing) {
+      bringToFront(id);
+    }
+  };
 
   const handleDragStart = (e: React.MouseEvent) => {
     if (isMaximized) return;
@@ -61,7 +57,7 @@ const Widget: React.FC<WidgetProps> = ({
     const deltaY = e.clientY - dragRef.current.startY;
 
     const newX = Math.max(0, Math.min(dragRef.current.offsetX + deltaX, window.innerWidth - (widget.width || 300)));
-    const newY = Math.max(0, Math.min(dragRef.current.offsetY + deltaY, window.innerHeight - 48));
+    const newY = Math.max(HEADER_HEIGHT, Math.min(dragRef.current.offsetY + deltaY, window.innerHeight - FOOTER_HEIGHT - 48));
 
     updateWidget({
       id,
@@ -71,17 +67,15 @@ const Widget: React.FC<WidgetProps> = ({
   };
 
   const handleResizeStart = (e: React.MouseEvent) => {
-    if (!widget) return;
-    
-    e.preventDefault();
+    if (isMaximized) return;
     e.stopPropagation();
     
     setIsResizing(true);
     resizeRef.current = {
       startX: e.clientX,
       startY: e.clientY,
-      startWidth: widget.width,
-      startHeight: widget.height
+      startWidth: widget?.width || defaultSize?.width || 300,
+      startHeight: widget?.height || defaultSize?.height || 400
     };
   };
 
@@ -91,8 +85,8 @@ const Widget: React.FC<WidgetProps> = ({
     const deltaX = e.clientX - resizeRef.current.startX;
     const deltaY = e.clientY - resizeRef.current.startY;
 
-    const newWidth = Math.max(300, Math.min(resizeRef.current.startWidth + deltaX, window.innerWidth - widget.x));
-    const newHeight = Math.max(200, Math.min(resizeRef.current.startHeight + deltaY, window.innerHeight - widget.y));
+    const newWidth = Math.max(300, resizeRef.current.startWidth + deltaX);
+    const newHeight = Math.max(200, resizeRef.current.startHeight + deltaY);
 
     updateWidget({
       id,
@@ -105,22 +99,15 @@ const Widget: React.FC<WidgetProps> = ({
     setIsResizing(false);
   };
 
-  const handleDragEnd = () => {
-    setIsDragging(false);
-  };
-
   React.useEffect(() => {
     if (isDragging) {
       window.addEventListener('mousemove', handleDrag);
-      window.addEventListener('mouseup', handleDragEnd);
+      window.addEventListener('mouseup', () => setIsDragging(false));
       return () => {
         window.removeEventListener('mousemove', handleDrag);
-        window.removeEventListener('mouseup', handleDragEnd);
+        window.removeEventListener('mouseup', () => setIsDragging(false));
       };
     }
-  }, [isDragging]);
-
-  React.useEffect(() => {
     if (isResizing) {
       window.addEventListener('mousemove', handleResize);
       window.addEventListener('mouseup', handleResizeEnd);
@@ -129,38 +116,22 @@ const Widget: React.FC<WidgetProps> = ({
         window.removeEventListener('mouseup', handleResizeEnd);
       };
     }
-  }, [isResizing]);
+  }, [isDragging, isResizing]);
 
   const handleMaximize = () => {
     if (!widget) return;
 
-    if (isMaximized) {
-      updateWidget({
-        id,
-        x: widget.x,
-        y: widget.y,
-        width: defaultSize?.width || 300,
-        height: defaultSize?.height || 400
-      });
-    } else {
-      updateWidget({
-        id,
-        x: 0,
-        y: 0,
-        width: window.innerWidth,
-        height: window.innerHeight - 48
-      });
-    }
-    setIsMaximized(!isMaximized);
-    bringToFront(id);
-  };
-
-  const handleMinimize = () => {
+    const newIsMaximized = !isMaximized;
     updateWidget({
       id,
-      isMinimized: true,
-      isVisible: false
+      x: newIsMaximized ? 0 : widget.x,
+      y: newIsMaximized ? HEADER_HEIGHT : widget.y,
+      width: newIsMaximized ? window.innerWidth : (defaultSize?.width || 300),
+      height: newIsMaximized ? window.innerHeight - HEADER_HEIGHT - FOOTER_HEIGHT : (defaultSize?.height || 400),
+      isMaximized: newIsMaximized
     });
+    setIsMaximized(newIsMaximized);
+    bringToFront(id);
   };
 
   const handleClose = () => {
@@ -171,9 +142,7 @@ const Widget: React.FC<WidgetProps> = ({
   if (!widget) return null;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
+    <div
       style={{
         position: 'absolute',
         left: widget.x,
@@ -183,47 +152,47 @@ const Widget: React.FC<WidgetProps> = ({
         zIndex: widget.zIndex || 1
       }}
       className="bg-background/95 backdrop-blur-md rounded-lg border border-primary/30 overflow-hidden shadow-xl"
+      onClick={handleClick}
     >
       <div
         className="flex items-center justify-between p-3 bg-primary/10 border-b border-primary/30 cursor-move"
         onMouseDown={handleDragStart}
-        onClick={() => !isDragging && bringToFront(id)}
       >
         <div className="flex items-center space-x-2">
           <Icon className="w-5 h-5 text-primary" />
-          <span className="text-primary font-medium">{title}</span>
+          <span className="text-text font-medium">{title}</span>
         </div>
         <div className="flex items-center space-x-1">
           <button
-            onClick={handleMinimize}
+            onClick={() => updateWidget({ id, isVisible: false })}
             className="p-1 hover:bg-primary/20 rounded transition-colors"
           >
-            <Minus className="w-4 h-4 text-primary" />
+            <Minus className="w-4 h-4 text-text" />
           </button>
           <button
             onClick={handleMaximize}
             className="p-1 hover:bg-primary/20 rounded transition-colors"
           >
-            <Square className="w-4 h-4 text-primary" />
+            <Square className="w-4 h-4 text-text" />
           </button>
           <button
             onClick={handleClose}
             className="p-1 hover:bg-primary/20 rounded transition-colors"
           >
-            <X className="w-4 h-4 text-primary" />
+            <X className="w-4 h-4 text-text" />
           </button>
         </div>
       </div>
       <div className="p-4 overflow-auto" style={{ height: 'calc(100% - 48px)' }}>
         {children}
       </div>
-      <div
-        className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize"
-        onMouseDown={handleResizeStart}
-      >
-        <div className="absolute bottom-1 right-1 w-2 h-2 bg-primary/50 rounded-sm" />
-      </div>
-    </motion.div>
+      {!isMaximized && (
+        <div
+          className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize"
+          onMouseDown={handleResizeStart}
+        />
+      )}
+    </div>
   );
 };
 

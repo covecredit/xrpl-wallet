@@ -13,6 +13,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
     if (!widgets.length) {
+      // Wallet widget - keep original size
       updateWidget({
         id: 'wallet',
         isVisible: true,
@@ -23,33 +24,36 @@ const App: React.FC = () => {
         zIndex: 1
       });
 
+      // Chain Explorer - increased size to show graph and controls
       updateWidget({
         id: 'graph',
         isVisible: true,
         x: 360,
         y: 80,
-        width: 800,
-        height: 500,
+        width: 1000,  // Increased from 800
+        height: 600,  // Increased from 500
         zIndex: 1
       });
 
+      // Price chart - increased width to match graph
       updateWidget({
         id: 'price',
         isVisible: true,
         x: 360,
         y: window.innerHeight - 380,
-        width: 800,
-        height: 300,
+        width: 1000,  // Increased from 800
+        height: 350,  // Increased from 300
         zIndex: 1
       });
 
+      // Market panel - match graph size
       updateWidget({
         id: 'market',
         isVisible: false,
         x: 360,
         y: 80,
-        width: 800,
-        height: 500,
+        width: 1000,  // Increased from 800
+        height: 600,  // Increased from 500
         zIndex: 1
       });
     }

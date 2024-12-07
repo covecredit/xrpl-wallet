@@ -1,5 +1,5 @@
 import React from 'react';
-import { Wallet, Send, QrCode, History } from 'lucide-react';
+import { Anchor, Send, QrCode, History } from 'lucide-react';
 import Widget from '../Widget/Widget';
 import WalletButton from '../WalletButton';
 import { useWalletStore } from '../../store/walletStore';
@@ -7,11 +7,18 @@ import { useWalletStore } from '../../store/walletStore';
 const WalletPanel: React.FC = () => {
   const { balance, isConnected } = useWalletStore();
 
+  const CoveO = () => (
+    <span className="relative">
+      <span>O</span>
+      <span className="absolute top-1/2 left-0 w-full h-0.5 bg-primary transform -rotate-45"></span>
+    </span>
+  );
+
   return (
     <Widget
       id="wallet"
-      title="XRPL Wallet"
-      icon={Wallet}
+      title={<span>C<CoveO/>VE Wallet</span>}
+      icon={Anchor}
       defaultPosition={{ x: 20, y: 80 }}
       defaultSize={{ width: 320, height: 400 }}
     >

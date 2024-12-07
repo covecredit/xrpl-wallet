@@ -1,5 +1,5 @@
 import React from 'react';
-import { Activity, LineChart, RotateCcw, Wallet, Tent } from 'lucide-react';
+import { Activity, LineChart, RotateCcw, Anchor, Tent } from 'lucide-react';
 import { useWidgetStore } from '../../store/widgetStore';
 
 const AppBar: React.FC = () => {
@@ -18,8 +18,29 @@ const AppBar: React.FC = () => {
   };
 
   const handleResetView = () => {
+    // Preserve maximized state when resetting
+    const maximizedWidgets = widgets.filter(w => w.isMaximized);
     organizeWidgets();
+    
+    // Restore maximized state
+    maximizedWidgets.forEach(widget => {
+      updateWidget({
+        id: widget.id,
+        isMaximized: true,
+        x: 0,
+        y: 80, // Account for header
+        width: window.innerWidth,
+        height: window.innerHeight - 140 // Account for header and footer
+      });
+    });
   };
+
+  const CoveO = () => (
+    <span className="relative">
+      <span>O</span>
+      <span className="absolute top-1/2 left-0 w-full h-0.5 bg-primary transform -rotate-45"></span>
+    </span>
+  );
 
   return (
     <div className="fixed top-4 left-1/2 -translate-x-1/2 flex items-center space-x-2 z-50">
@@ -33,8 +54,8 @@ const AppBar: React.FC = () => {
             : 'bg-background/80 hover:bg-primary/10'}
         `}
       >
-        <Wallet className="w-5 h-5 text-primary" />
-        <span className="text-primary text-sm">Wallet</span>
+        <Anchor className="w-5 h-5 text-primary" />
+        <span className="text-primary text-sm">C<CoveO/>VE Wallet</span>
       </button>
 
       <button
@@ -48,7 +69,7 @@ const AppBar: React.FC = () => {
         `}
       >
         <Activity className="w-5 h-5 text-primary" />
-        <span className="text-primary text-sm">Graph</span>
+        <span className="text-primary text-sm">Chain eXplorer</span>
       </button>
 
       <button
@@ -62,7 +83,7 @@ const AppBar: React.FC = () => {
         `}
       >
         <LineChart className="w-5 h-5 text-primary" />
-        <span className="text-primary text-sm">Price</span>
+        <span className="text-primary text-sm">XRP/USD</span>
       </button>
 
       <button
@@ -81,12 +102,9 @@ const AppBar: React.FC = () => {
 
       <button
         onClick={handleResetView}
-        className="flex items-center space-x-2 p-2 border border-primary/30 
-                 rounded-lg bg-background/80 hover:bg-primary/10 
-                 transition-colors duration-200 group"
+        className="p-2 border border-primary/30 rounded-lg bg-background/80 hover:bg-primary/10 transition-colors"
       >
         <RotateCcw className="w-5 h-5 text-primary" />
-        <span className="text-primary text-sm">Reset</span>
       </button>
     </div>
   );
