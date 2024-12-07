@@ -56,17 +56,15 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       </AnimatePresence>
 
       {isMobile ? (
-        <>
-          <div className="fixed top-0 left-0 right-0 z-50 p-4">
-            <AccountHeader />
-          </div>
-          <div className="fixed top-16 left-0 right-0 z-40 flex items-center p-4 bg-background/95 backdrop-blur-md border-b border-primary/30">
+        <div className="fixed top-0 left-0 right-0 z-50">
+          <div className="flex items-center justify-between p-4 bg-background/95 backdrop-blur-md border-b border-primary/30">
             <div className="flex items-center space-x-4">
               <MenuButton isOpen={isMenuOpen} onClick={() => setIsMenuOpen(!isMenuOpen)} />
               <Logo />
             </div>
+            <AccountHeader />
           </div>
-        </>
+        </div>
       ) : (
         <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between p-4">
           <div className="flex items-center space-x-4">
@@ -84,7 +82,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.2 }}
-            className={`fixed ${isMobile ? 'top-32' : 'top-16'} left-0 right-0 z-40 bg-background/95 backdrop-blur-md border-b border-primary/30 shadow-lg`}
+            className={`fixed ${isMobile ? 'top-16' : 'top-16'} left-0 right-0 z-40 bg-background/95 backdrop-blur-md border-b border-primary/30 shadow-lg`}
           >
             <AppBar isMenuOpen={isMenuOpen} />
           </motion.div>
@@ -93,7 +91,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
       <main className={`
         relative z-10 min-h-[calc(100vh-48px)]
-        ${isMobile ? 'flex flex-col space-y-4 px-4 pt-40' : 'pt-20'}
+        ${isMobile ? 'flex flex-col space-y-4 px-4 pt-20' : 'pt-20'}
       `}>
         {React.Children.map(children, child => {
           if (React.isValidElement(child) && child.type === AppBar) {
