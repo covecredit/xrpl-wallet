@@ -17,6 +17,20 @@ const GraphPanel: React.FC = () => {
   const fgRef = useRef<any>();
   const isMobile = useMediaQuery('(max-width: 768px)');
 
+  useEffect(() => {
+    if (fgRef.current) {
+      // Center on first render
+      fgRef.current.zoomToFit(400, 150);
+      
+      // For mobile, adjust zoom level
+      if (isMobile) {
+        setTimeout(() => {
+          fgRef.current.zoom(2);
+        }, 500);
+      }
+    }
+  }, [isMobile]);
+
   const handleZoomIn = useCallback(() => {
     if (fgRef.current) {
       fgRef.current.zoom(fgRef.current.zoom() * 1.5);
@@ -30,7 +44,6 @@ const GraphPanel: React.FC = () => {
   }, []);
 
   const handleRefresh = useCallback(() => {
-    // Create a deep copy of the data to trigger a complete re-render
     const newData = {
       nodes: mockGraphData.nodes.map(node => ({
         ...node,
@@ -39,19 +52,17 @@ const GraphPanel: React.FC = () => {
         vx: undefined,
         vy: undefined
       })),
-      links: mockGraphData.links.map(link => ({ ...link }))
+      links: [...mockGraphData.links]
     };
 
     setGraphData(newData);
 
     if (fgRef.current) {
       fgRef.current.d3ReheatSimulation();
+      setTimeout(() => {
+        fgRef.current.zoomToFit(400);
+      }, 500);
     }
-  }, []);
-
-  useEffect(() => {
-    // Initial setup
-    handleRefresh();
   }, []);
 
   return (

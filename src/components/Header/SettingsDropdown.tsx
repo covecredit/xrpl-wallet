@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Settings, Palette, ChevronDown } from 'lucide-react';
+import { Settings, Palette } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useThemeStore } from '../../store/themeStore';
 
@@ -14,14 +14,14 @@ const SettingsDropdown: React.FC = () => {
 
   return (
     <div className="relative">
-      <button
+      <motion.button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-2 p-2 rounded-lg hover:bg-primary/20 transition-colors duration-200"
+        className="p-2 rounded-lg hover:bg-primary/20 transition-colors duration-200"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
       >
-        <Settings className="w-6 h-6 text-primary" />
-        <span className="text-text">Settings</span>
-        <ChevronDown className={`w-4 h-4 text-text transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
-      </button>
+        <Settings className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+      </motion.button>
 
       <AnimatePresence>
         {isOpen && (

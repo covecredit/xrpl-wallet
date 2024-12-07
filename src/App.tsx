@@ -4,6 +4,7 @@ import WalletPanel from './components/Wallet/WalletPanel';
 import GraphPanel from './components/Graph/GraphPanel';
 import PricePanel from './components/Price/PricePanel';
 import MarketPanel from './components/Marketplace/MarketPanel';
+import ChatWidget from './components/Chat/ChatWidget';
 import { useWidgetStore } from './store/widgetStore';
 
 const App: React.FC = () => {
@@ -11,7 +12,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
     if (!widgets.length) {
-      // Wallet widget - keep original size
+      // Wallet widget
       updateWidget({
         id: 'wallet',
         isVisible: true,
@@ -22,7 +23,7 @@ const App: React.FC = () => {
         zIndex: 1
       });
 
-      // Chain Explorer - increased size to show graph and controls
+      // Chain Explorer
       updateWidget({
         id: 'graph',
         isVisible: true,
@@ -33,7 +34,7 @@ const App: React.FC = () => {
         zIndex: 1
       });
 
-      // Price chart - increased width to match graph
+      // Price chart
       updateWidget({
         id: 'price',
         isVisible: true,
@@ -44,7 +45,7 @@ const App: React.FC = () => {
         zIndex: 1
       });
 
-      // Market panel - match graph size
+      // Market panel
       updateWidget({
         id: 'market',
         isVisible: false,
@@ -52,6 +53,17 @@ const App: React.FC = () => {
         y: 80,
         width: 1000,
         height: 600,
+        zIndex: 1
+      });
+
+      // Chat widget
+      updateWidget({
+        id: 'chat',
+        isVisible: false,
+        x: window.innerWidth - 340,
+        y: 80,
+        width: 320,
+        height: 400,
         zIndex: 1
       });
     }
@@ -63,6 +75,7 @@ const App: React.FC = () => {
       {widgets.find(w => w.id === 'graph')?.isVisible && <GraphPanel />}
       {widgets.find(w => w.id === 'price')?.isVisible && <PricePanel />}
       {widgets.find(w => w.id === 'market')?.isVisible && <MarketPanel />}
+      {widgets.find(w => w.id === 'chat')?.isVisible && <ChatWidget />}
     </MainLayout>
   );
 };

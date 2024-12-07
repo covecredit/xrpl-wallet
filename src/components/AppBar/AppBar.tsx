@@ -1,8 +1,8 @@
-import React from 'react';
-import { Activity, LineChart, RotateCcw, Anchor, Tent } from 'lucide-react';
+import React, { useState } from 'react';
+import { Anchor, Activity, LineChart, Tent, MessageCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useWidgetStore } from '../../store/widgetStore';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
-import { motion, AnimatePresence } from 'framer-motion';
 
 interface AppBarProps {
   isMenuOpen: boolean;
@@ -91,7 +91,7 @@ const AppBar: React.FC<AppBarProps> = ({ isMenuOpen }) => {
 
   return (
     <AnimatePresence>
-      {(!isMobile || isMenuOpen) && (
+      {isMenuOpen && (
         <motion.div
           initial="closed"
           animate="open"
@@ -112,20 +112,9 @@ const AppBar: React.FC<AppBarProps> = ({ isMenuOpen }) => {
             <motion.div variants={itemVariants}>
               <AppButton id="market" icon={Tent} label="Market" />
             </motion.div>
-
-            <motion.button
-              variants={itemVariants}
-              onClick={handleResetView}
-              className={`
-                p-3 border border-primary/30 rounded-lg bg-background/80 
-                hover:bg-primary/10 transition-colors flex items-center justify-center
-                ${isMobile ? 'w-full' : ''}
-              `}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <RotateCcw className="w-5 h-5 text-primary" />
-            </motion.button>
+            <motion.div variants={itemVariants}>
+              <AppButton id="chat" icon={MessageCircle} label="Chat" />
+            </motion.div>
           </div>
         </motion.div>
       )}
