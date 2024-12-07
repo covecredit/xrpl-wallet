@@ -4,15 +4,15 @@ import './polyfills';
 import App from './App';
 import './index.css';
 import { useThemeStore } from './store/themeStore';
-import { ThemeName } from './types/theme';
+import { ThemeName, themes } from './types/theme';
 import { loadFromStorage, saveToStorage } from './utils/storage';
 
 // Initialize theme on first visit
 const initializeTheme = () => {
   const savedTheme = loadFromStorage('theme');
   if (!savedTheme) {
-    const themes: ThemeName[] = ['gold', 'red', 'green', 'lightBlue', 'darkBlue'];
-    const randomTheme = themes[Math.floor(Math.random() * themes.length)];
+    const themeNames: ThemeName[] = ['gold', 'red', 'green', 'lightBlue', 'darkBlue'];
+    const randomTheme = themeNames[Math.floor(Math.random() * themeNames.length)];
     saveToStorage('theme', randomTheme);
     return randomTheme;
   }

@@ -9,7 +9,7 @@ interface AppBarProps {
 }
 
 const AppBar: React.FC<AppBarProps> = ({ isMenuOpen }) => {
-  const { widgets, updateWidget, organizeWidgets } = useWidgetStore();
+  const { widgets, updateWidget } = useWidgetStore();
   const isMobile = useMediaQuery('(max-width: 768px)');
 
   const handleAppClick = (id: string) => {
@@ -23,22 +23,6 @@ const AppBar: React.FC<AppBarProps> = ({ isMenuOpen }) => {
         zIndex: !widget.isVisible ? Math.max(...widgets.map(w => w.zIndex), 0) + 1 : widget.zIndex
       });
     }
-  };
-
-  const handleResetView = () => {
-    const maximizedWidgets = widgets.filter(w => w.isMaximized);
-    organizeWidgets();
-    
-    maximizedWidgets.forEach(widget => {
-      updateWidget({
-        id: widget.id,
-        isMaximized: true,
-        x: 0,
-        y: 80,
-        width: window.innerWidth,
-        height: window.innerHeight - 140
-      });
-    });
   };
 
   const AppButton = ({ id, icon: Icon, label }: { id: string; icon: any; label: string }) => {
@@ -56,8 +40,10 @@ const AppBar: React.FC<AppBarProps> = ({ isMenuOpen }) => {
         whileTap={{ scale: 0.98 }}
         layout
       >
-        <Icon className="w-5 h-5 text-primary" />
-        <span className="text-primary text-sm whitespace-nowrap">{label}</span>
+        <Icon className={`w-5 h-5 ${isVisible ? 'text-primary' : 'text-primary/70'}`} />
+        <span className={`text-sm whitespace-nowrap ${isVisible ? 'text-primary' : 'text-primary/70'}`}>
+          {label}
+        </span>
       </motion.button>
     );
   };

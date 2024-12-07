@@ -9,7 +9,8 @@ class ExchangeManager {
   private static instance: ExchangeManager;
   private currentExchange: ExchangeName = 'Bitfinex';
   private priceHistory: Map<ExchangeName, PriceData[]> = new Map();
-  private readonly MAX_HISTORY = 1000; // Keep last 1000 data points
+  private readonly MAX_HISTORY = 1000;
+  private isInitialized = false;
 
   private constructor() {
     this.setupExchanges();
@@ -23,22 +24,25 @@ class ExchangeManager {
   }
 
   private setupExchanges(): void {
-    // Initialize price history for each exchange
     this.priceHistory.set('Bitfinex', []);
     this.priceHistory.set('Bitstamp', []);
     this.priceHistory.set('Kraken', []);
 
-    // Set up price handlers
     bitfinexService.on('price', (data) => this.handlePrice('Bitfinex', data));
     bitstampService.on('price', (data) => this.handlePrice('Bitstamp', data));
     krakenService.on('price', (data) => this.handlePrice('Kraken', data));
+
+    // Auto-connect on initialization
+    if (!this.isInitialized) {
+      this.connect();
+      this.isInitialized = true;
+    }
   }
 
   private handlePrice(exchange: ExchangeName, data: PriceData): void {
     const history = this.priceHistory.get(exchange) || [];
     history.push(data);
     
-    // Keep only the last MAX_HISTORY data points
     if (history.length > this.MAX_HISTORY) {
       history.shift();
     }
