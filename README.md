@@ -29,7 +29,7 @@ A modern, interactive wallet interface for the XRP Ledger (XRPL) built with Reac
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/xrpl-wallet.git
+git clone https://github.com/covecredit/xrpl-wallet.git
 cd xrpl-wallet
 ```
 
